@@ -67,6 +67,7 @@ async function run() {
 
     // security layer: verifyJWT
     // email same
+
     // check admin
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
@@ -78,6 +79,19 @@ async function run() {
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       const result = { admin: user?.role === "admin" };
+      res.send(result);
+    });
+
+    app.get("/users/role/:email", verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ role: false });
+      }
+
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      const result = {role: user.role};
       res.send(result);
     });
 
