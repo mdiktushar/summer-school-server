@@ -60,7 +60,10 @@ async function run() {
     // user related api
     app.post("/users", async (req, res) => {
       // inserting user in the db after signup
-      const user = req.body;
+      const user = {
+        ...req.body,
+        role: "student",
+      };
       const result = await usersCollection.insertOne(user);
       res.send(result);
     });
@@ -91,7 +94,7 @@ async function run() {
 
       const query = { email: email };
       const user = await usersCollection.findOne(query);
-      const result = {role: user.role};
+      const result = { role: user?.role };
       res.send(result);
     });
 
