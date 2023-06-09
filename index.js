@@ -57,7 +57,14 @@ async function run() {
       res.send({ token });
     });
 
-    // user related api
+    // user related api..........................................
+    // get users form db
+    app.get("/users", async (req, res) => {
+      const result = await usersCollection.find().toArray();
+      res.send(result);
+    });
+
+    // add users to db
     app.post("/users", async (req, res) => {
       // inserting user in the db after signup
       const user = {
@@ -70,8 +77,7 @@ async function run() {
 
     // security layer: verifyJWT
     // email same
-
-    // check admin
+    // check role
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
