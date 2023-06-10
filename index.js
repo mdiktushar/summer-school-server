@@ -47,7 +47,7 @@ async function run() {
     // Send a ping to confirm a successful connection
 
     const usersCollection = client.db("summer-school").collection("users");
-    const menuCollection = client.db("summer-school").collection("classes");
+    const classesCollection = client.db("summer-school").collection("classes");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -121,11 +121,17 @@ async function run() {
     });
     //.........................................................
     // Class api
-    // Add Class
 
+    // get all Classes
+    app.get("/class", async (req, res) => {
+      const result = await classesCollection.find().toArray();
+      res.send(result);
+    });
+
+    // Add Class
     app.post("/class", async (req, res) => {
       const newItem = req.body;
-      const result = await menuCollection.insertOne(newItem);
+      const result = await classesCollection.insertOne(newItem);
       res.send(result);
     });
 
