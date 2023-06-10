@@ -108,13 +108,17 @@ async function run() {
     app.patch("/users/:role/:id", async (req, res) => {
       const id = req.params.id;
       const newRole = req.params.role;
-      console.log(id);
+      // console.log(id);
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: {
           role: newRole,
         },
       };
+
+      if (newRole == "instructor") {
+        updateDoc.$set.enrolledStudents = 0;
+      }
 
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
@@ -134,8 +138,6 @@ async function run() {
       const result = await classesCollection.insertOne(newItem);
       res.send(result);
     });
-
-    //.........................................................
 
     //.........................................................
 
