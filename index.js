@@ -116,6 +116,7 @@ async function run() {
         },
       };
 
+      // adding new element in db
       if (newRole == "instructor") {
         updateDoc.$set.enrolledStudents = 0;
       }
@@ -136,6 +137,20 @@ async function run() {
     app.post("/class", async (req, res) => {
       const newItem = req.body;
       const result = await classesCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    // update class status
+    app.patch("/class-state/:state/:id", async (req, res) => {
+      const id = req.params.id;
+      const newState = req.params.state;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          state: newState,
+        },
+      };
+      const result = await classesCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
 
