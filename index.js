@@ -49,6 +49,7 @@ async function run() {
     const usersCollection = client.db("summer-school").collection("users");
     const classesCollection = client.db("summer-school").collection("classes");
     const cartCollection = client.db("summer-school").collection("carts");
+    const enrollCollection = client.db("summer-school").collection("enroll");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -208,6 +209,74 @@ async function run() {
       res.send(result);
     });
 
+    //.........................................................
+    // Payment
+    app.delete("/pay/:id/:classID/:myEmail", async (req, res) => {
+      // try {
+      const id = req.params.id;
+      const classID = req.params.classID;
+      const email = req.params.myEmail;
+
+      const classObj = await classesCollection.findOne({
+        _id: new ObjectId(classID),
+      });
+      console.log(classObj);
+      const authorObj = await usersCollection.findOne({
+        email: classObj.email,
+      });
+
+      console.log(classObj, authorObj);
+
+      if (!classObj) {
+        return res.status(404).send({ message: "Class not found" });
+      }
+
+      // updating class seat & enroll count
+      const filter = { _id: new ObjectId(classObj._id) };
+      const updateDoc = {
+        $set: {
+          seats: classObj.seats - 1,
+          enrolledStudents: classObj.enrolledStudents + 1,
+        },
+      };
+      await classesCollection.updateOne(filter, updateDoc);
+
+      // updating author enroll count
+      const filter1 = { _id: new ObjectId(authorObj._id) };
+      const updateDoc1 = {
+        $set: {
+          enrolledStudents: authorObj.enrolledStudents + 1,
+        },
+      };
+      await usersCollection.updateOne(filter1, updateDoc1);
+
+      // Create the document to be inserted into enrollCollection
+      const enrollDoc = {
+        email: email,
+        name: classObj.name,
+        price: classObj.price,
+        image: classObj.image,
+      };
+
+      // Insert the document into enrollCollection
+      await enrollCollection.insertOne(enrollDoc);
+
+      // deleting operation
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
+
+      if (result.deletedCount === 0) {
+        return res.status(404).send({ message: "Item not found in cart" });
+      }
+
+      res.send(result);
+
+      // } catch (error) {
+      //   console.log(error);
+      //   res.status(500).send({ message: "Internal server error" });
+      // }
+    });
+    //.........................................................
     //.........................................................
 
     await client.db("admin").command({ ping: 1 });
