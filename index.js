@@ -48,6 +48,7 @@ async function run() {
 
     const usersCollection = client.db("summer-school").collection("users");
     const classesCollection = client.db("summer-school").collection("classes");
+    const cartCollection = client.db("summer-school").collection("carts");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -129,7 +130,10 @@ async function run() {
 
     // get all Classes
     app.get("/class", async (req, res) => {
-      const result = await classesCollection.find().toArray();
+      const { state } = req.query;
+      const query = state ? { state: state } : {};
+
+      const result = await classesCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -153,7 +157,7 @@ async function run() {
       const result = await classesCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
-    
+
     // update class feedback
     app.patch("/class-feedback/:feedback/:id", async (req, res) => {
       const id = req.params.id;
@@ -165,6 +169,42 @@ async function run() {
         },
       };
       const result = await classesCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    //.........................................................
+
+    // cart collection apis
+    app.get("/carts", async (req, res) => {
+      const email = req.query.email;
+
+      if (!email) {
+        res.send([]);
+      }
+
+      // const decodedEmail = req.decoded.email;
+      // if (email !== decodedEmail) {
+      //   return res
+      //     .status(403)
+      //     .send({ error: true, message: "provider access" });
+      // }
+
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/carts", async (req, res) => {
+      const item = req.body;
+      // console.log(item);
+      const result = await cartCollection.insertOne(item);
+      res.send(result);
+    });
+
+    app.delete("/carts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
 
