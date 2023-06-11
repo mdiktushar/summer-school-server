@@ -63,8 +63,8 @@ async function run() {
     // user related api..........................................
     // get users form db
     app.get("/users", async (req, res) => {
-      const {role} = req.query;
-      const query = role ? {role: role}:{}
+      const { role } = req.query;
+      const query = role ? { role: role } : {};
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
@@ -134,10 +134,19 @@ async function run() {
 
     // get all Classes
     app.get("/class", async (req, res) => {
-      const { state } = req.query;
+      const { state, popular } = req.query;
       const query = state ? { state: state } : {};
 
-      const result = await classesCollection.find(query).toArray();
+      let result;
+      if (popular === "1") {
+        result = await classesCollection
+          .find(query)
+          .sort({ enrolledStudents: -1 }) // Sort in descending order by enrolledStudents
+          .toArray();
+      } else {
+        result = await classesCollection.find(query).toArray();
+      }
+
       res.send(result);
     });
 
@@ -285,9 +294,9 @@ async function run() {
     app.get("/enroll", async (req, res) => {
       const { email } = req.query;
       const query = email ? { email: email } : {};
-    
+
       const result = await enrollCollection.find(query).toArray();
-      result.reverse()
+      result.reverse();
       res.send(result);
     });
     //.........................................................
