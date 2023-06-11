@@ -78,21 +78,22 @@ async function run() {
       res.send(result);
     });
 
+    // app.get("/users/admin/:email", verifyJWT, async (req, res) => {
+    //   const email = req.params.email;
+
+    //   if (req.decoded.email !== email) {
+    //     res.send({ admin: false });
+    //   }
+
+    //   const query = { email: email };
+    //   const user = await usersCollection.findOne(query);
+    //   const result = { admin: user?.role === "admin" };
+    //   res.send(result);
+    // });
+
     // security layer: verifyJWT
     // email same
     // check role
-    app.get("/users/admin/:email", verifyJWT, async (req, res) => {
-      const email = req.params.email;
-
-      if (req.decoded.email !== email) {
-        res.send({ admin: false });
-      }
-
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      const result = { admin: user?.role === "admin" };
-      res.send(result);
-    });
 
     app.get("/users/role/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
@@ -277,6 +278,15 @@ async function run() {
       // }
     });
     //.........................................................
+    // enrolled
+
+    app.get("/enroll", async (req, res) => {
+      const { email } = req.query;
+      const query = email ? { email: email } : {};
+    
+      const result = await enrollCollection.find(query).toArray();
+      res.send(result);
+    });
     //.........................................................
 
     await client.db("admin").command({ ping: 1 });
