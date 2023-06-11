@@ -63,11 +63,22 @@ async function run() {
     // user related api..........................................
     // get users form db
     app.get("/users", async (req, res) => {
-      const { role } = req.query;
+      const { role, sort } = req.query;
       const query = role ? { role: role } : {};
-      const result = await usersCollection.find(query).toArray();
+    
+      let result;
+      if (role === "instructor" && sort === "1") {
+        result = await usersCollection
+          .find(query)
+          .sort({ enrolledStudents: -1 }) // Sort in descending order by enrolledStudents
+          .toArray();
+      } else {
+        result = await usersCollection.find(query).toArray();
+      }
+    
       res.send(result);
     });
+    
 
     // add users to db
     app.post("/users", async (req, res) => {
