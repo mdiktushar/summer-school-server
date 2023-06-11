@@ -91,19 +91,6 @@ async function run() {
       res.send(result);
     });
 
-    // app.get("/users/admin/:email", verifyJWT, async (req, res) => {
-    //   const email = req.params.email;
-
-    //   if (req.decoded.email !== email) {
-    //     res.send({ admin: false });
-    //   }
-
-    //   const query = { email: email };
-    //   const user = await usersCollection.findOne(query);
-    //   const result = { admin: user?.role === "admin" };
-    //   res.send(result);
-    // });
-
     // security layer: verifyJWT
     // email same
     // check role
@@ -324,7 +311,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Summer School is sitting");
+  res.send("Summer School is Running");
 });
 
 app.listen(port, () => {
