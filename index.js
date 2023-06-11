@@ -63,7 +63,9 @@ async function run() {
     // user related api..........................................
     // get users form db
     app.get("/users", async (req, res) => {
-      const result = await usersCollection.find().toArray();
+      const {role} = req.query;
+      const query = role ? {role: role}:{}
+      const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -285,6 +287,7 @@ async function run() {
       const query = email ? { email: email } : {};
     
       const result = await enrollCollection.find(query).toArray();
+      result.reverse()
       res.send(result);
     });
     //.........................................................
